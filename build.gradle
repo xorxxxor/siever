@@ -1,0 +1,45 @@
+plugins {
+    id 'java'
+    id 'distribution'
+}
+
+group 'org.siever'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.8.1'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.8.1'
+    implementation 'commons-cli:commons-cli:1.5.0'
+    implementation files("heros.jar")
+
+}
+
+test {
+    useJUnitPlatform()
+}
+
+task fatJar(type: Jar) {
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+    manifest {
+        attributes("Main-Class": "Siever.Main")
+    }
+
+//    configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
+//    configurations.compile.collect { it.isDirectory() ? it : zipTree(it) }
+    from {
+        configurations.compileClasspath.collect { it.isDirectory() ? it : zipTree(it) }
+    } with jar
+}
+
+distributions {
+    main {
+        contents {
+            into('bin') {
+                from { 'build/libs' }
+            }
+        }
+    }
+}
